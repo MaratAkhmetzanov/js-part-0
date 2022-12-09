@@ -211,3 +211,18 @@ test('Counted unique types are sorted', countRealTypes([{}, null, true, !null, !
     ['null', 1],
     ['object', 1],
 ]);
+
+testBlock('Additional tests');
+
+test('Check empty arrays', [], []);
+test('BigInt primitive', getType(BigInt(10n)), 'bigint');
+test('Date primitive', getType(new Date()), 'object');
+test('Infinity primitive', getType(Infinity), 'number');
+test('RegExp primitive', getType(new RegExp()), 'object');
+test('Set primitive', getType(new Set()), 'object');
+test('Symbol primitive', getType(Symbol('symbol')), 'symbol');
+test('String String() primitive', getType(String('whoo')), 'string');
+test('String toStrong() primitive', getType('string'.toString()), 'string');
+test('Infinity primitive', getRealType(1 / 0), 'infinity');
+test('Infinity primitive', getRealType(1 / 'string'), 'nan');
+test('Infinity primitive', getRealType(Infinity / 0), 'infinity');
