@@ -7,7 +7,7 @@ const testBlock = (name) => {
 
 const areEqual = (a, b) => {
     if (Array.isArray(a) && Array.isArray(b)) {
-        return a.length === b.length ? JSON.stringify(a) === JSON.stringify(b) : false;
+        return a.length === b.length && a.every((element, index) => element === b[index]);
     }
 
     return a === b;
@@ -34,17 +34,14 @@ const getTypesOfItems = (arr) => arr.map((element) => getType(element));
 
 const allItemsHaveTheSameType = (arr) => {
     if (arr.length && arr.length > 1) {
-        for (let index = 1; index < arr.length; index++) {
-            if (getType(arr[index]) !== getType(arr[0])) {
-                return false;
-            }
-        }
+        const firstType = getType(arr[0]);
+        return arr.every((element) => getType(element) === firstType);
     }
     return true;
 };
 
 const getRealType = (value) => {
-    if (getType(value) === 'number') {
+    if (typeof value === 'number') {
         if (isNaN(value)) {
             return 'nan';
         }
@@ -67,7 +64,7 @@ const everyItemHasAUniqueRealType = (arr) => {
 };
 
 const countRealTypes = (arr) => {
-    const result = [];
+    const result = {};
 
     arr.forEach((element) => {
         if (!result[getRealType(element)]) {
@@ -130,6 +127,20 @@ test(
         new String(),
         null,
         [],
+        new Promise((resolve) => {
+            resolve('res');
+        }),
+        // eslint-disable-next-line no-restricted-syntax
+        new WeakSet(),
+        new ArrayBuffer(2),
+        new DataView(new ArrayBuffer(2)),
+        // eslint-disable-next-line no-restricted-syntax
+        new Int8Array(),
+        // eslint-disable-next-line no-restricted-syntax
+        new Int16Array(),
+        // eslint-disable-next-line no-restricted-syntax
+        new Float32Array(),
+        new Map(),
     ]),
     true
 );
@@ -152,6 +163,21 @@ const knownTypes = [
     Symbol('symbol'),
     'string',
     undefined,
+    async () => true,
+    new Promise((resolve) => {
+        resolve('res');
+    }),
+    // eslint-disable-next-line no-restricted-syntax
+    new WeakSet(),
+    new ArrayBuffer(2),
+    new DataView(new ArrayBuffer(2)),
+    // eslint-disable-next-line no-restricted-syntax
+    new Int8Array(),
+    // eslint-disable-next-line no-restricted-syntax
+    new Int16Array(),
+    // eslint-disable-next-line no-restricted-syntax
+    new Float32Array(),
+    new Map(),
 ];
 
 test('Check basic types', getTypesOfItems(knownTypes), [
@@ -170,6 +196,15 @@ test('Check basic types', getTypesOfItems(knownTypes), [
     'symbol',
     'string',
     'undefined',
+    'function',
+    'object',
+    'object',
+    'object',
+    'object',
+    'object',
+    'object',
+    'object',
+    'object',
 ]);
 
 test('Check real types', getRealTypesOfItems(knownTypes), [
@@ -188,6 +223,15 @@ test('Check real types', getRealTypesOfItems(knownTypes), [
     'symbol',
     'string',
     'undefined',
+    'asyncfunction',
+    'promise',
+    'weakset',
+    'arraybuffer',
+    'dataview',
+    'int8array',
+    'int16array',
+    'float32array',
+    'map',
 ]);
 
 testBlock('everyItemHasAUniqueRealType');
@@ -215,14 +259,14 @@ test('Counted unique types are sorted', countRealTypes([{}, null, true, !null, !
 testBlock('Additional tests');
 
 test('Check empty arrays', [], []);
-test('BigInt primitive', getType(BigInt(10n)), 'bigint');
-test('Date primitive', getType(new Date()), 'object');
-test('Infinity primitive', getType(Infinity), 'number');
-test('RegExp primitive', getType(new RegExp()), 'object');
-test('Set primitive', getType(new Set()), 'object');
-test('Symbol primitive', getType(Symbol('symbol')), 'symbol');
-test('String String() primitive', getType(String('whoo')), 'string');
-test('String toStrong() primitive', getType('string'.toString()), 'string');
-test('Infinity primitive', getRealType(1 / 0), 'infinity');
-test('Infinity primitive', getRealType(1 / 'string'), 'nan');
-test('Infinity primitive', getRealType(Infinity / 0), 'infinity');
+test('BigInt type', getType(BigInt(10n)), 'bigint');
+test('Date type', getType(new Date()), 'object');
+test('Infinity type', getType(Infinity), 'number');
+test('RegExp type', getType(new RegExp()), 'object');
+test('Set type', getType(new Set()), 'object');
+test('Symbol type', getType(Symbol('symbol')), 'symbol');
+test('String String() type', getType(String('whoo')), 'string');
+test('String toStrong() type', getType('string'.toString()), 'string');
+test('Infinity realType', getRealType(1 / 0), 'infinity');
+test('Infinity realType', getRealType(1 / 'string'), 'nan');
+test('Infinity realType', getRealType(Infinity / 0), 'infinity');
