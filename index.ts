@@ -1,11 +1,11 @@
 // Test utils
 
-const testBlock = (name) => {
+const testBlock = (name: string) => {
     console.groupEnd();
     console.group(`# ${name}\n`);
 };
 
-const areEqual = (a, b) => {
+const areEqual = (a: any, b: any): boolean => {
     if (Array.isArray(a) && Array.isArray(b)) {
         return a.length === b.length && a.every((element, index) => element === b[index]);
     }
@@ -13,7 +13,7 @@ const areEqual = (a, b) => {
     return a === b;
 };
 
-const test = (whatWeTest, actualResult, expectedResult) => {
+const test = (whatWeTest: string, actualResult: any, expectedResult: string | boolean | Array<any>): void => {
     if (areEqual(actualResult, expectedResult)) {
         console.log(`[OK] ${whatWeTest}\n`);
     } else {
@@ -28,11 +28,11 @@ const test = (whatWeTest, actualResult, expectedResult) => {
 
 // Functions
 
-const getType = (value) => typeof value;
+const getType = (value: any): string => typeof value;
 
-const getTypesOfItems = (arr) => arr.map((element) => getType(element));
+const getTypesOfItems = (arr: Array<any>): Array<string> => arr.map((element) => getType(element));
 
-const allItemsHaveTheSameType = (arr) => {
+const allItemsHaveTheSameType = (arr: Array<any>): boolean => {
     if (arr.length && arr.length > 1) {
         const firstType = getType(arr[0]);
         return arr.every((element) => getType(element) === firstType);
@@ -40,7 +40,7 @@ const allItemsHaveTheSameType = (arr) => {
     return true;
 };
 
-const getRealType = (value) => {
+const getRealType = (value: any): string => {
     if (typeof value === 'number') {
         if (isNaN(value)) {
             return 'nan';
@@ -109,6 +109,7 @@ test('All values are strings', allItemsHaveTheSameType(['11', '12', '13']), true
 
 test('All values are strings but wait', allItemsHaveTheSameType(['11', new String('12'), '13']), false);
 
+// @ts-expect-error: https://github.com/microsoft/TypeScript/issues/27910
 test('Values like a number', allItemsHaveTheSameType([123, 123 / 'a', 1 / 0]), true);
 
 test(
@@ -122,7 +123,7 @@ test(
         new Number(),
         // eslint-disable-next-line no-new-object
         new Object(),
-        new RegExp(),
+        new RegExp(''),
         new Set(),
         new String(),
         null,
@@ -158,7 +159,7 @@ const knownTypes = [
     null,
     123,
     {},
-    new RegExp(),
+    new RegExp(''),
     new Set(),
     Symbol('symbol'),
     'string',
@@ -238,6 +239,7 @@ testBlock('everyItemHasAUniqueRealType');
 
 test('All value types in the array are unique', everyItemHasAUniqueRealType([true, 123, '123']), true);
 
+// @ts-expect-error: https://github.com/microsoft/TypeScript/issues/27910
 test('Two values have the same type', everyItemHasAUniqueRealType([true, 123, '123' === 123]), false);
 
 test('There are no repeated types in knownTypes', everyItemHasAUniqueRealType(knownTypes), true);
@@ -262,11 +264,12 @@ test('Check empty arrays', [], []);
 test('BigInt type', getType(BigInt(10n)), 'bigint');
 test('Date type', getType(new Date()), 'object');
 test('Infinity type', getType(Infinity), 'number');
-test('RegExp type', getType(new RegExp()), 'object');
+test('RegExp type', getType(new RegExp('')), 'object');
 test('Set type', getType(new Set()), 'object');
 test('Symbol type', getType(Symbol('symbol')), 'symbol');
 test('String String() type', getType(String('whoo')), 'string');
 test('String toStrong() type', getType('string'.toString()), 'string');
 test('Infinity realType', getRealType(1 / 0), 'infinity');
+// @ts-expect-error: https://github.com/microsoft/TypeScript/issues/27910
 test('Infinity realType', getRealType(1 / 'string'), 'nan');
 test('Infinity realType', getRealType(Infinity / 0), 'infinity');
