@@ -5,7 +5,7 @@ const testBlock = (name: string) => {
     console.group(`# ${name}\n`);
 };
 
-const areEqual = (a: any, b: string | boolean | Array<any>): boolean => {
+const areEqual = (a: any, b: any): boolean => {
     if (Array.isArray(a) && Array.isArray(b)) {
         return a.length === b.length && a.every((element, index) => element === b[index]);
     }
